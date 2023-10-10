@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 func getApiKey(ctx *gin.Context) string {
 	apikeyPhrase := ctx.Request.Header.Get("Authorization")
 	apikey := strings.TrimPrefix(apikeyPhrase, "ApiKey ")
+	fmt.Println(apikey)
 	if apikey == apikeyPhrase {
 		return ""
 	}
@@ -27,7 +29,7 @@ func respondWithJSON(ctx *gin.Context, code int, res interface{}) {
 }
 
 func renderHTML(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "index.tmpl", gin.H{
+	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"title": "Hello Mom",
 	})
 }

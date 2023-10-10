@@ -50,16 +50,7 @@ func (apiConfig *apiConfig) HandleCreateUsers(ctx *gin.Context) {
 }
 
 func (apiConfig *apiConfig) HandleGetUserByID(ctx *gin.Context) {
-	apikey := getApiKey(ctx)
-	if apikey == "" {
-		respondWithError(ctx, http.StatusUnauthorized, "Malformed Token")
-		return
-	}
-	user, err := apiConfig.DB.GetUserById(ctx.Request.Context(), apikey)
-	if err != nil {
-		respondWithError(ctx, http.StatusNotFound, "No user found")
-		return
-	}
+	user := ctx.MustGet("user").(database.User)
 	res := User{
 		ID:        user.ID,
 		CreatedAt: user.CreatedAt,

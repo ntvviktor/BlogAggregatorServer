@@ -19,18 +19,25 @@ type apiConfig struct {
 }
 
 func main() {
+	// feed, err := URLToFeed("https://feeds.feedburner.com/TechCrunch/")
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
 	dbUrl := os.Getenv("DB_CONN")
 	db, err := sql.Open("postgres", dbUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
 	dbQueries := database.New(db)
 	apiCfg := apiConfig{
 		DB: dbQueries,
 	}
+	// Scape data feed from url
+	go startScraping(dbQueries, 10, time.Minute)
 
 	PORT := os.Getenv("PORT")
+	// Initialize router and configure CORS
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://*"},
@@ -46,8 +53,13 @@ func main() {
 
 	v1 := router.Group("/v1")
 	{
+		v1.GET("/feeds", apiCfg.HandleGetAllFeeds)
 		v1.POST("/users", apiCfg.HandleCreateUsers)
+		v1.Use(apiCfg.middlewareAuth())
 		v1.GET("/users", apiCfg.HandleGetUserByID)
+		v1.DELETE("/users/:feedFollowID", apiCfg.HandleDeleteFeedFollow)
+		v1.POST("/feed_follows", apiCfg.HandleCreateFeedFollow)
+		v1.POST("/feeds", apiCfg.HandleCreateFeed)
 	}
 	router.LoadHTMLGlob("templates/*")
 	router.GET("/", renderHTML)
