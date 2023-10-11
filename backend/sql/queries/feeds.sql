@@ -6,9 +6,9 @@ RETURNING *;
 -- name: GetAllFeeds :many
 SELECT * FROM feeds;
 
--- name: GetNextFetchToFetch :many
+-- name: GetNextFeedToFetch :many
 SELECT * FROM feeds
-ORDER BY last_fetched_at ASC NULLS FIRST 
+ORDER BY last_fetched_at ASC NULLS FIRST
 LIMIT $1;
 
 -- name: MarkFeedFetched :one
