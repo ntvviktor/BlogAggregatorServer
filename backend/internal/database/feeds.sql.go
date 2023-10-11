@@ -84,14 +84,14 @@ func (q *Queries) GetAllFeeds(ctx context.Context) ([]Feed, error) {
 	return items, nil
 }
 
-const getNextFetchToFetch = `-- name: GetNextFetchToFetch :many
+const getNextFeedToFetch = `-- name: GetNextFeedToFetch :many
 SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds
-ORDER BY last_fetched_at ASC NULLS FIRST 
+ORDER BY last_fetched_at ASC NULLS FIRST
 LIMIT $1
 `
 
-func (q *Queries) GetNextFetchToFetch(ctx context.Context, limit int32) ([]Feed, error) {
-	rows, err := q.db.QueryContext(ctx, getNextFetchToFetch, limit)
+func (q *Queries) GetNextFeedToFetch(ctx context.Context, limit int32) ([]Feed, error) {
+	rows, err := q.db.QueryContext(ctx, getNextFeedToFetch, limit)
 	if err != nil {
 		return nil, err
 	}

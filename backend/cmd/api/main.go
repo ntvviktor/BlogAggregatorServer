@@ -19,6 +19,7 @@ type apiConfig struct {
 }
 
 func main() {
+	// TODO: automatically follow their own feed that is created by the users
 	// feed, err := URLToFeed("https://feeds.feedburner.com/TechCrunch/")
 	err := godotenv.Load()
 	if err != nil {
@@ -34,7 +35,7 @@ func main() {
 		DB: dbQueries,
 	}
 	// Scape data feed from url
-	go startScraping(dbQueries, 10, time.Minute)
+	// go startScraping(dbQueries, 3, time.Minute)
 
 	PORT := os.Getenv("PORT")
 	// Initialize router and configure CORS
@@ -57,6 +58,7 @@ func main() {
 		v1.POST("/users", apiCfg.HandleCreateUsers)
 		v1.Use(apiCfg.middlewareAuth())
 		v1.GET("/users", apiCfg.HandleGetUserByID)
+		v1.GET("/posts", apiCfg.HandleGetPostsByUser)
 		v1.DELETE("/users/:feedFollowID", apiCfg.HandleDeleteFeedFollow)
 		v1.POST("/feed_follows", apiCfg.HandleCreateFeedFollow)
 		v1.POST("/feeds", apiCfg.HandleCreateFeed)
