@@ -1,0 +1,12 @@
+{{ define "articles_lists.html" }}
+<ul class="flex flex-col items-center justify-center list-none gap-3" id="articles_lists">
+    {{ range .Posts }}
+    <li class="border border-gray-600 rounded m-2 p-4 w-7/12">
+        <a class="text-lg font-bold" href="{{ .Url }}" target="_blank">{{ .Title }}</a>
+        <!-- {{ .Description }} -->
+        <p>{{ .Description }}</p> 
+        <span>{{ .PubDate }}</span>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}

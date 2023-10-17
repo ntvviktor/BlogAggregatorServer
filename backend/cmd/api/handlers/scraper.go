@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -62,7 +62,7 @@ func scrapeFeed(wg *sync.WaitGroup, db *database.Queries, feed database.Feed) {
 }
 
 func stringToTime(str string) time.Time {
-	parsedTime, err := time.Parse(time.UTC.String(), str)
+	parsedTime, err := time.Parse(time.RFC1123, str)
 	if err != nil {
 		return time.Time{}
 	}

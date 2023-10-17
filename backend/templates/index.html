@@ -1,16 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-     <head>
-          <title></title>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <link href="css/style.css" rel="stylesheet">
-          <script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
-     </head>
-     <body>
-          <h1> {{ .title }}</h1>
-          <h2>
-               Hello World from go lang
-          </h2>
-     </body>
+  <head>
+    <title>Blog</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.6"
+      integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <style>
+      #articles input:checked + span {
+        background-color: aquamarine;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="border-b-gray-950 border-y-2">
+      <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <a class="flex items-center">
+          <span class="self-center text-2xl font-semibold whitespace-nowrap">BlogAgg</span>
+        </a>
+        {{ if .IsLogin}}
+        <button class="bg-transparent text-blue-700 font-semibold  py-2 px-4 border-2 border-blue-500 hover:border-transparent rounded">
+          {{.username}}
+        </button>
+        {{ else }}
+        <button 
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          hx-get="/login"
+          hx-trigger="click"
+          hx-target="#main"
+          hx-swap="innerHTML"
+        >
+          Login
+        </button>
+        {{ end }}
+      </div>
+    </nav>
+    <div id="main" class="flex flex-col items-center justify-center">
+      <h3 class="text-2xl text-blue-500 font-bold">Latest Blogs</h3>
+      {{ template "articles_lists.html" .}}
+    </div>
+  </body>
 </html>

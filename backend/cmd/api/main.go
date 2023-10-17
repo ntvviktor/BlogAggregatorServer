@@ -11,12 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/ntvviktor/BlogApplication/cmd/api/handlers"
+	"github.com/ntvviktor/BlogApplication/cmd/api/web"
 	"github.com/ntvviktor/BlogApplication/internal/database"
 )
-
-type apiConfig struct {
-	DB *database.Queries
-}
 
 func main() {
 	// TODO: automatically follow their own feed that is created by the users
@@ -31,11 +29,12 @@ func main() {
 		log.Fatal(err)
 	}
 	dbQueries := database.New(db)
-	apiCfg := apiConfig{
+	apiCfg := handlers.ApiConfig{
 		DB: dbQueries,
 	}
+	config := &web.Config{&apiCfg}
 	// Scape data feed from url
-	// go startScraping(dbQueries, 3, time.Minute)
+	// go startScraping(dbQueries, 3, time.Hour)
 
 	PORT := os.Getenv("PORT")
 	// Initialize router and configure CORS
@@ -56,7 +55,7 @@ func main() {
 	{
 		v1.GET("/feeds", apiCfg.HandleGetAllFeeds)
 		v1.POST("/users", apiCfg.HandleCreateUsers)
-		v1.Use(apiCfg.middlewareAuth())
+		v1.Use(apiCfg.MiddlewareAuth())
 		v1.GET("/users", apiCfg.HandleGetUserByID)
 		v1.GET("/posts", apiCfg.HandleGetPostsByUser)
 		v1.DELETE("/users/:feedFollowID", apiCfg.HandleDeleteFeedFollow)
@@ -64,6 +63,11 @@ func main() {
 		v1.POST("/feeds", apiCfg.HandleCreateFeed)
 	}
 	router.LoadHTMLGlob("templates/*")
-	router.GET("/", renderHTML)
+
+	router.GET("/", config.RenderHTML)
+	router.GET("/login", config.HandleLogin)
+	router.Use(apiCfg.MiddlewareAuth())
+	router.GET("/posts", config.HandleGetPosts)
+
 	router.Run(fmt.Sprintf(":%s", PORT))
 }

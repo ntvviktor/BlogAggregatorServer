@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"net/http"
@@ -18,7 +18,7 @@ type Feed struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-func (apiConfig *apiConfig) HandleCreateFeed(ctx *gin.Context) {
+func (ApiConfig *ApiConfig) HandleCreateFeed(ctx *gin.Context) {
 	type parameter struct {
 		Name string `json:"name"`
 		Url  string `json:"url"`
@@ -26,7 +26,7 @@ func (apiConfig *apiConfig) HandleCreateFeed(ctx *gin.Context) {
 	param := parameter{}
 	err := ctx.BindJSON(&param)
 	if err != nil {
-		respondWithError(ctx, http.StatusBadRequest, "Bad requested JSON")
+		RespondWithError(ctx, http.StatusBadRequest, "Bad requested JSON")
 		return
 	}
 
@@ -41,11 +41,26 @@ func (apiConfig *apiConfig) HandleCreateFeed(ctx *gin.Context) {
 		UserID:    user.ID,
 	}
 
-	createdFeed, err := apiConfig.DB.CreateFeed(ctx.Request.Context(), newFeed)
+	createdFeed, err := ApiConfig.DB.CreateFeed(ctx.Request.Context(), newFeed)
 	if err != nil {
-		respondWithError(ctx, http.StatusInternalServerError, "Internal error")
+		RespondWithError(ctx, http.StatusInternalServerError, "Internal error")
 		return
 	}
+
+	newFeedFollow := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		FeedID:    createdFeed.ID,
+		UserID:    user.ID,
+	}
+
+	_, err = ApiConfig.DB.CreateFeedFollow(ctx.Request.Context(), newFeedFollow)
+	if err != nil {
+		RespondWithError(ctx, http.StatusInternalServerError, "Internal error")
+		return
+	}
+
 	res := Feed{
 		ID:        createdFeed.ID,
 		CreatedAt: createdFeed.CreatedAt,
@@ -54,14 +69,14 @@ func (apiConfig *apiConfig) HandleCreateFeed(ctx *gin.Context) {
 		Url:       createdFeed.Url,
 		UserID:    createdFeed.UserID,
 	}
-	respondWithJSON(ctx, http.StatusCreated, res)
+	RespondWithJSON(ctx, http.StatusCreated, res)
 }
 
-func (apiConfig *apiConfig) HandleGetAllFeeds(ctx *gin.Context) {
-	allFeeds, err := apiConfig.DB.GetAllFeeds(ctx.Request.Context())
+func (ApiConfig *ApiConfig) HandleGetAllFeeds(ctx *gin.Context) {
+	allFeeds, err := ApiConfig.DB.GetAllFeeds(ctx.Request.Context())
 	if err != nil {
-		respondWithError(ctx, http.StatusNotFound, "Resources Not Found")
+		RespondWithError(ctx, http.StatusNotFound, "Resources Not Found")
 		return
 	}
-	respondWithJSON(ctx, http.StatusCreated, allFeeds)
+	RespondWithJSON(ctx, http.StatusCreated, allFeeds)
 }

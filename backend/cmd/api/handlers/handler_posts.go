@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"log"
@@ -9,7 +9,7 @@ import (
 	"github.com/ntvviktor/BlogApplication/internal/database"
 )
 
-func (apiConfig *apiConfig) HandleGetPostsByUser(ctx *gin.Context) {
+func (ApiConfig *ApiConfig) HandleGetPostsByUser(ctx *gin.Context) {
 	var limit int
 	var err error
 	limitQuery := ctx.DefaultQuery("limit", "unknow")
@@ -24,13 +24,13 @@ func (apiConfig *apiConfig) HandleGetPostsByUser(ctx *gin.Context) {
 	}
 
 	user := ctx.MustGet("user").(database.User)
-	posts, err := apiConfig.DB.GetPostsByUser(ctx.Request.Context(), database.GetPostsByUserParams{
+	posts, err := ApiConfig.DB.GetPostsByUser(ctx.Request.Context(), database.GetPostsByUserParams{
 		UserID: user.ID,
 		Limit:  int32(limit),
 	})
 	if err != nil {
-		respondWithError(ctx, 500, "Internal Error")
+		RespondWithError(ctx, 500, "Internal Error")
 		return
 	}
-	respondWithJSON(ctx, http.StatusOK, posts)
+	RespondWithJSON(ctx, http.StatusOK, posts)
 }

@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"net/http"
@@ -18,14 +18,15 @@ type User struct {
 	ApiKey    string    `json:"api_key"`
 }
 
-func (apiConfig *apiConfig) HandleCreateUsers(ctx *gin.Context) {
+func (ApiConfig *ApiConfig) HandleCreateUsers(ctx *gin.Context) {
 	type parameter struct {
 		Name string `json:"name"`
 	}
 	param := parameter{}
 	err := ctx.BindJSON(&param)
 	if err != nil {
-		respondWithError(ctx, http.StatusBadRequest, "Bad requested JSON")
+		RespondWithError(ctx, http.StatusBadRequest, "Bad requested JSON")
+		return
 	}
 
 	newUser := database.CreateUserParams{
@@ -35,9 +36,10 @@ func (apiConfig *apiConfig) HandleCreateUsers(ctx *gin.Context) {
 		Name:      param.Name,
 	}
 
-	createdUser, err := apiConfig.DB.CreateUser(ctx.Request.Context(), newUser)
+	createdUser, err := ApiConfig.DB.CreateUser(ctx.Request.Context(), newUser)
 	if err != nil {
-		respondWithError(ctx, http.StatusInternalServerError, "Cannot create users")
+		RespondWithError(ctx, http.StatusInternalServerError, "Cannot create users")
+		return
 	}
 	res := User{
 		ID:        createdUser.ID,
@@ -46,10 +48,10 @@ func (apiConfig *apiConfig) HandleCreateUsers(ctx *gin.Context) {
 		Name:      createdUser.Name,
 		ApiKey:    createdUser.ApiKey,
 	}
-	respondWithJSON(ctx, http.StatusCreated, res)
+	RespondWithJSON(ctx, http.StatusCreated, res)
 }
 
-func (apiConfig *apiConfig) HandleGetUserByID(ctx *gin.Context) {
+func (ApiConfig *ApiConfig) HandleGetUserByID(ctx *gin.Context) {
 	user := ctx.MustGet("user").(database.User)
 	res := User{
 		ID:        user.ID,
@@ -58,5 +60,5 @@ func (apiConfig *apiConfig) HandleGetUserByID(ctx *gin.Context) {
 		Name:      user.Name,
 		ApiKey:    user.ApiKey,
 	}
-	respondWithJSON(ctx, http.StatusOK, res)
+	RespondWithJSON(ctx, http.StatusOK, res)
 }

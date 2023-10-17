@@ -1,0 +1,38 @@
+{{ define "login.html"}}
+<section class="bg-zinc-400 m-5">
+      <div class="w-full bg-white border-2 md:mt-0 sm:max-w-md xl:p-0">
+          <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+              <h1 class="text-xl font-bold leading-tight tracking-tight md:text-2xl ">
+                  Sign in to your account
+              </h1>
+              <form class="space-y-4 md:space-y-6" action="#">
+                  <div>
+                      <label for="username" class="block mb-2 text-sm font-medium">Your name</label>
+                      <input type="email" name="username" id="username" class="bg-gray-50 border border-gray-300 text-gray-900 
+                      sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required="">
+                  </div>
+                  <button type="submit" class="w-full text-white bg-primary-600 hover:bg-primary-700 bg-teal-600
+                  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg 
+                  text-sm px-5 py-2.5 text-center"
+                  hx-boost="true"
+                  hx-post="/v1/users"
+                  >Sign in
+                  </button>
+              </form>
+          </div>
+  </div>
+</section>
+
+<!-- <div id="articles" class="flex flex-col items-center justify-center">
+<button
+  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+  hx-get="/posts"
+  hx-headers='{"Authorization": "ApiKey 6ab785413e828198848f189141ad26be20cb619d3812db118fb66b70948f5d2a"}'
+  hx-target="#articles"
+  hx-swap="beforeend"
+>
+  Fetch
+</button>
+</div> -->
+
+{{ end }}

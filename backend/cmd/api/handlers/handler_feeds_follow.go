@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"net/http"
@@ -9,6 +9,10 @@ import (
 	"github.com/ntvviktor/BlogApplication/internal/database"
 )
 
+type ApiConfig struct {
+	DB *database.Queries
+}
+
 type FeedFollow struct {
 	ID        uuid.UUID `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
@@ -17,14 +21,14 @@ type FeedFollow struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-func (apiConfig *apiConfig) HandleCreateFeedFollow(ctx *gin.Context) {
+func (ApiConfig *ApiConfig) HandleCreateFeedFollow(ctx *gin.Context) {
 	type parameter struct {
 		FeedID uuid.UUID `json:"feed_id"`
 	}
 	param := parameter{}
 	err := ctx.BindJSON(&param)
 	if err != nil {
-		respondWithError(ctx, http.StatusBadRequest, "Bad requested JSON")
+		RespondWithError(ctx, http.StatusBadRequest, "Bad requested JSON")
 		return
 	}
 
@@ -38,9 +42,9 @@ func (apiConfig *apiConfig) HandleCreateFeedFollow(ctx *gin.Context) {
 		UserID:    user.ID,
 	}
 
-	createdFeed, err := apiConfig.DB.CreateFeedFollow(ctx.Request.Context(), newFeedFollow)
+	createdFeed, err := ApiConfig.DB.CreateFeedFollow(ctx.Request.Context(), newFeedFollow)
 	if err != nil {
-		respondWithError(ctx, http.StatusInternalServerError, "Internal error")
+		RespondWithError(ctx, http.StatusInternalServerError, "Internal error")
 		return
 	}
 	res := FeedFollow{
@@ -50,35 +54,35 @@ func (apiConfig *apiConfig) HandleCreateFeedFollow(ctx *gin.Context) {
 		FeedID:    createdFeed.FeedID,
 		UserID:    createdFeed.UserID,
 	}
-	respondWithJSON(ctx, http.StatusCreated, res)
+	RespondWithJSON(ctx, http.StatusCreated, res)
 }
 
-func (apiConfig *apiConfig) HandleGetAllFeedFollowsByUser(ctx *gin.Context) {
+func (ApiConfig *ApiConfig) HandleGetAllFeedFollowsByUser(ctx *gin.Context) {
 	user := ctx.MustGet("user").(database.User)
-	feedFollows, err := apiConfig.DB.GetAllFeedFollowsByUser(ctx.Request.Context(), user.ID)
+	feedFollows, err := ApiConfig.DB.GetAllFeedFollowsByUser(ctx.Request.Context(), user.ID)
 	if err != nil {
-		respondWithError(ctx, http.StatusNotFound, "User or feeds not found")
+		RespondWithError(ctx, http.StatusNotFound, "User or feeds not found")
 		return
 	}
-	respondWithJSON(ctx, http.StatusOK, feedFollows)
+	RespondWithJSON(ctx, http.StatusOK, feedFollows)
 }
 
-func (apiConfig *apiConfig) HandleDeleteFeedFollow(ctx *gin.Context) {
+func (ApiConfig *ApiConfig) HandleDeleteFeedFollow(ctx *gin.Context) {
 	feedFollowID := ctx.Param("feedFollowID")
 	str, _ := uuid.FromBytes([]byte(feedFollowID))
 
 	user := ctx.MustGet("user").(database.User)
 
-	err := apiConfig.DB.DeleteFeedFollow(ctx.Request.Context(), database.DeleteFeedFollowParams{
+	err := ApiConfig.DB.DeleteFeedFollow(ctx.Request.Context(), database.DeleteFeedFollowParams{
 		ID:     str,
 		UserID: user.ID,
 	})
 	if err != nil {
-		respondWithError(ctx, http.StatusInternalServerError, "Cannot delete, internal error")
+		RespondWithError(ctx, http.StatusInternalServerError, "Cannot delete, internal error")
 		return
 	}
 	res := map[string]string{
 		feedFollowID: "deleted",
 	}
-	respondWithJSON(ctx, http.StatusOK, res)
+	RespondWithJSON(ctx, http.StatusOK, res)
 }

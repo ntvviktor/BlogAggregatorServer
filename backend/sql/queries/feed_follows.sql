@@ -8,4 +8,4 @@ SELECT * FROM feed_follows
 WHERE user_id = $1;
 
 -- name: DeleteFeedFollow :exec
-DELETE FROM feed_follows WHERE id = $1 AND  user_id = $2;
+DELETE FROM feed_follows WHERE id = $1 AND user_id = $2;

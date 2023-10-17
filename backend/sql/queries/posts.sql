@@ -5,7 +5,7 @@ RETURNING *;
 
 -- name: GetPostsByUser :many
 SELECT * FROM
-posts P JOIN feeds F ON P.feed_id = F.feed_id
+posts P JOIN feed_follows F ON P.feed_id = F.feed_id
 WHERE user_id = $1
 ORDER BY P.created_at
 LIMIT $2;
